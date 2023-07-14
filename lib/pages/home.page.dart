@@ -12,38 +12,59 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final CoinService _coinService = CoinService();
-  final TextEditingController realController = TextEditingController();
-  final TextEditingController dolarController = TextEditingController();
-  final TextEditingController euroController = TextEditingController();
+  final TextEditingController _realController = TextEditingController();
+  final TextEditingController _dolarController = TextEditingController();
+  final TextEditingController _euroController = TextEditingController();
 
   Coin _coin = Coin();
 
   void _realOnChanged(String text) {
+    if (text.isEmpty) {
+      _clearAllFields();
+      return;
+    }
+
     double? real = double.tryParse(text);
-    dolarController.text =
+    _dolarController.text =
         (real! / _coin.results!.currencies!.uSD!.buy!).toStringAsPrecision(4);
-    euroController.text =
+    _euroController.text =
         (real! / _coin.results!.currencies!.eUR!.buy!).toStringAsPrecision(4);
   }
 
   void _dolarOnChanged(String text) {
+    if (text.isEmpty) {
+      _clearAllFields();
+      return;
+    }
+
     double? dollar = double.tryParse(text);
-    realController.text =
+    _realController.text =
         (dollar! * _coin.results!.currencies!.uSD!.buy!).toStringAsPrecision(4);
-    euroController.text = (dollar! *
+    _euroController.text = (dollar! *
             _coin.results!.currencies!.uSD!.buy! /
             _coin.results!.currencies!.eUR!.buy!)
         .toStringAsPrecision(4);
   }
 
   void _euroOnChanged(String text) {
+    if (text.isEmpty) {
+      _clearAllFields();
+      return;
+    }
+
     double? euro = double.tryParse(text);
-    realController.text =
+    _realController.text =
         (euro! / _coin.results!.currencies!.eUR!.buy!).toStringAsPrecision(4);
-    dolarController.text = (euro! *
+    _dolarController.text = (euro! *
             _coin.results!.currencies!.eUR!.buy! /
             _coin.results!.currencies!.uSD!.buy!)
         .toStringAsPrecision(4);
+  }
+
+  void _clearAllFields() {
+    _realController.clear();
+    _dolarController.clear();
+    _euroController.clear();
   }
 
   Widget buildTextField(String label, String prefix,
@@ -78,6 +99,10 @@ class _HomePageState extends State<HomePage> {
           size: 50,
           color: Colors.amber,
         ),
+        actions: <Widget>[
+          IconButton(
+              onPressed: _clearAllFields, icon: const Icon(Icons.refresh))
+        ],
         centerTitle: true,
       ),
       body: FutureBuilder<Coin>(
@@ -107,16 +132,17 @@ class _HomePageState extends State<HomePage> {
                       height: 20,
                     ),
                     buildTextField(
-                        'Real', 'R\$', realController, _realOnChanged),
+                        'Real', 'R\$', _realController, _realOnChanged),
                     const SizedBox(
                       height: 20,
                     ),
                     buildTextField(
-                        'Dólar', 'US\$', dolarController, _dolarOnChanged),
+                        'Dólar', 'US\$', _dolarController, _dolarOnChanged),
                     const SizedBox(
                       height: 20,
                     ),
-                    buildTextField('Euro', '€', euroController, _euroOnChanged),
+                    buildTextField(
+                        'Euro', '€', _euroController, _euroOnChanged),
                   ],
                 ),
               );
